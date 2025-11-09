@@ -1,0 +1,44 @@
+name: Matrix Build with Artifacts — bb66ebe
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14, 16, 18]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: matrix-bb66ebe
+        run: |
+          echo "matrix-bb66ebe: building for node ${{ matrix.node }}"
+          node -v
+
+      - name: Generate build artifact
+        run: |
+          TIMESTAMP="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          echo "Build artifact for node ${{ matrix.node }}" > build-info.txt
+          echo "workflow: Matrix Build with Artifacts — bb66ebe" >> build-info.txt
+          echo "node-version: ${{ matrix.node }}" >> build-info.txt
+          echo "generated-at: $TIMESTAMP" >> build-info.txt
+          echo "git-ref: $GITHUB_REF" >> build-info.txt
+          echo "commit: $GITHUB_SHA" >> build-info.txt
+          echo "---- end of file ----" >> build-info.txt
+          cat build-info.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-bb66ebe-v${{ matrix.node }}
+          path: build-info.txt
